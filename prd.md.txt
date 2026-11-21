@@ -1,0 +1,497 @@
+# PRODUCT REQUIREMENTS DOCUMENT (PRD)
+
+## AI-POWERED EDUCATIONAL LEARNING ECOSYSTEM
+
+**Versi:** 1.0  
+**Status:** Initial Product Specification  
+**Platform:** Android  
+**Frontend:** Flutter / Dart  
+**Backend:** Node.js / Express + Python AI Service  
+**Database:** PostgreSQL
+
+---
+
+## 1. Product Overview
+
+### 1.1. Product Vision
+
+Membangun platform pendidikan berbasis Artificial Intelligence yang membantu pengajar mengubah materi pembelajaran menjadi berbagai bentuk konten edukatif secara otomatis, sekaligus menyediakan lingkungan belajar interaktif bagi siswa.
+
+Platform ini menghubungkan proses pembuatan materi, distribusi pembelajaran, aktivitas belajar, dan evaluasi dalam satu ekosistem.
+
+### 1.2. Problem Statement
+
+Dalam proses pendidikan, pengajar sering menghadapi beberapa kendala:
+
+- Membutuhkan waktu untuk membuat rangkuman dan materi presentasi.
+- Kesulitan membuat variasi soal evaluasi.
+- Membutuhkan waktu untuk merancang aktivitas pembelajaran interaktif.
+- Harus membuat materi tambahan secara manual.
+- Kesulitan memantau pemahaman siswa secara terstruktur.
+
+Di sisi siswa:
+
+- Materi pembelajaran terkadang terlalu panjang dan sulit dipahami.
+- Metode pembelajaran cenderung monoton.
+- Siswa membutuhkan media belajar yang lebih interaktif.
+- Siswa membutuhkan evaluasi untuk mengetahui tingkat pemahaman mereka.
+
+### 1.3. Product Solution
+
+Aplikasi menyediakan AI-powered content generation yang mampu memproses dokumen pembelajaran dan mengubahnya menjadi:
+
+- Rangkuman materi.
+- Presentasi PowerPoint.
+- Kuis dan ujian.
+- Flashcards.
+- Mind maps.
+- Worksheet.
+- Permainan edukatif.
+
+Hasil konten dapat ditinjau, diedit, disimpan, dan dibagikan oleh pengajar kepada siswa melalui kelas digital.
+
+---
+
+## 2. Product Objectives
+
+1. Mengurangi waktu yang dibutuhkan pengajar untuk menyiapkan konten pembelajaran.
+2. Menyediakan berbagai format pembelajaran dari satu sumber materi.
+3. Meningkatkan keterlibatan siswa melalui pembelajaran interaktif.
+4. Mempermudah distribusi materi dan evaluasi.
+5. Menyediakan data perkembangan belajar siswa.
+6. Membangun fondasi untuk pengembangan adaptive learning berbasis AI.
+
+## 3. User Personas
+
+### 3.1. Teacher
+
+Pengguna yang bertanggung jawab membuat, mengelola, dan mendistribusikan materi pembelajaran.
+
+Kebutuhan:
+- Mengunggah dokumen pembelajaran.
+- Menghasilkan konten menggunakan AI.
+- Mengedit hasil AI.
+- Mengelola kelas.
+- Membagikan konten.
+- Membuat ujian dan tugas.
+- Melihat hasil evaluasi siswa.
+
+### 3.2. Student
+
+Pengguna yang menggunakan aplikasi untuk mempelajari materi dan mengerjakan aktivitas pembelajaran.
+
+Kebutuhan:
+- Bergabung ke kelas.
+- Mengakses materi.
+- Membaca rangkuman.
+- Melihat presentasi.
+- Mengerjakan kuis.
+- Bermain game edukatif.
+- Melihat nilai dan perkembangan belajar.
+
+### 3.3. Administrator
+
+Role administratif untuk pengelolaan sistem.
+
+Kebutuhan:
+- Mengelola akun pengguna.
+- Memantau aktivitas sistem.
+- Mengelola konfigurasi layanan.
+- Memantau penggunaan AI.
+- Menangani laporan dan moderasi.
+
+Administrator dapat dikembangkan sebagai web dashboard terpisah pada fase berikutnya.
+
+---
+
+## 4. Functional Requirements
+
+### 4.1. Authentication & Authorization
+
+- Registrasi akun.
+- Login dan logout.
+- Pemilihan role pengajar atau siswa.
+- Pengelolaan profil.
+- Reset password.
+- Token-based authentication.
+- Role-based access control.
+
+Setiap pengguna hanya dapat mengakses sumber daya sesuai hak aksesnya.
+
+### 4.2. Teacher Workspace
+
+#### A. Document Management
+
+Pengajar dapat:
+
+- Mengunggah file PDF.
+- Mengunggah DOCX.
+- Mengunggah PPTX.
+- Melihat daftar dokumen.
+- Melihat detail dokumen.
+- Menghapus dokumen.
+- Mengelompokkan dokumen berdasarkan mata pelajaran atau topik.
+
+Setiap dokumen memiliki:
+- Nama dokumen.
+- Deskripsi.
+- Mata pelajaran.
+- Ukuran file.
+- Format file.
+- Status pemrosesan.
+- Waktu unggah.
+
+Status pemrosesan:
+
+`UPLOADED → PROCESSING → ANALYZED → READY`
+
+Status alternatif:
+- FAILED
+- REQUIRES_REVIEW
+
+#### B. AI Material Analyzer
+
+Sistem menganalisis dokumen untuk memperoleh:
+
+- Judul dan topik utama.
+- Subtopik.
+- Konsep penting.
+- Istilah dan definisi.
+- Tujuan pembelajaran jika tersedia.
+- Struktur bab.
+- Referensi halaman atau bagian sumber.
+
+Hasil analisis disimpan sebagai struktur data yang dapat digunakan oleh seluruh generator.
+
+#### C. AI Content Generator
+
+Pengajar dapat memilih jenis konten yang ingin dibuat.
+
+**Summary Generator**
+- Ringkasan singkat.
+- Ringkasan mendalam.
+- Poin-poin penting.
+- Definisi istilah.
+- Kesimpulan materi.
+
+**Presentation Generator**
+- Menentukan jumlah slide.
+- Menentukan gaya presentasi.
+- Menghasilkan judul slide.
+- Menghasilkan poin penjelasan.
+- Menghasilkan catatan presenter.
+- Menghasilkan rekomendasi visual.
+- Ekspor ke PPTX.
+
+**Quiz Generator**
+- Pilihan ganda.
+- Benar atau salah.
+- Isian singkat.
+- Esai.
+- Tingkat kesulitan.
+- Jumlah soal.
+- Kunci jawaban.
+- Pembahasan.
+
+**Flashcard Generator**
+- Pertanyaan.
+- Jawaban.
+- Istilah.
+- Definisi.
+
+**Mind Map Generator**
+- Topik utama.
+- Cabang konsep.
+- Subkonsep.
+- Hubungan antarkonsep.
+
+**Worksheet Generator**
+- Instruksi pengerjaan.
+- Pertanyaan.
+- Aktivitas.
+- Ruang jawaban.
+- Kriteria penilaian.
+
+#### D. Content Editor
+
+Pengajar dapat:
+- Mengedit konten hasil AI.
+- Menghapus bagian tertentu.
+- Menambahkan materi.
+- Mengulang proses generate.
+- Menyimpan versi.
+- Melakukan preview.
+- Menyetujui konten sebelum dipublikasikan.
+
+Hasil AI tidak boleh otomatis dipublikasikan tanpa persetujuan pengajar.
+
+### 4.3. Educational Game Generator
+
+Sistem menghasilkan konfigurasi permainan berdasarkan materi pembelajaran.
+
+Jenis permainan:
+
+1. Quiz Battle.
+2. Word Matching.
+3. True or False.
+4. Memory Cards.
+5. Crossword Puzzle.
+6. Word Puzzle.
+
+AI bertugas menghasilkan pertanyaan, jawaban, petunjuk, dan konfigurasi permainan.
+
+Flutter bertugas merender permainan menggunakan komponen interaktif yang sudah ditentukan.
+
+Persyaratan:
+- Timer.
+- Skor.
+- Feedback jawaban.
+- Progress permainan.
+- Hasil akhir.
+- Riwayat permainan.
+
+Game harus menggunakan konten yang berasal dari dokumen sumber.
+
+### 4.4. Classroom Management
+
+Pengajar dapat:
+
+- Membuat kelas.
+- Mengubah informasi kelas.
+- Menghapus atau mengarsipkan kelas.
+- Menghasilkan kode kelas.
+- Melihat daftar siswa.
+- Membagikan materi.
+- Membuat tugas.
+- Membuat ujian.
+- Melihat aktivitas kelas.
+
+Siswa dapat:
+- Bergabung menggunakan kode kelas.
+- Melihat daftar kelas.
+- Mengakses materi.
+- Mengikuti tugas dan ujian.
+- Melihat hasil evaluasi.
+
+### 4.5. Student Learning Workspace
+
+Dashboard siswa menampilkan:
+
+- Kelas yang diikuti.
+- Materi terbaru.
+- Tugas yang harus dikerjakan.
+- Ujian mendatang.
+- Aktivitas belajar.
+- Riwayat nilai.
+- Progress pembelajaran.
+
+Siswa dapat mengakses:
+- Rangkuman.
+- Presentasi.
+- Flashcards.
+- Mind maps.
+- Kuis.
+- Game edukatif.
+
+### 4.6. Assessment System
+
+Sistem evaluasi mendukung:
+
+- Kuis mandiri.
+- Ujian terjadwal.
+- Batas waktu pengerjaan.
+- Penilaian otomatis untuk pilihan ganda dan benar/salah.
+- Penilaian manual untuk esai.
+- Pembahasan jawaban.
+- Rekap nilai.
+
+Nilai akhir dihitung berdasarkan konfigurasi penilaian yang ditetapkan pengajar.
+
+### 4.7. Learning Analytics
+
+Pengajar dapat melihat:
+
+- Jumlah siswa yang mengikuti kelas.
+- Tingkat penyelesaian tugas.
+- Rata-rata nilai.
+- Distribusi nilai.
+- Tingkat keberhasilan per soal.
+- Materi yang paling sering dijawab salah.
+
+Adaptive learning menjadi pengembangan lanjutan berdasarkan data ini.
+
+---
+
+## 5. AI Requirements
+
+### 5.1. AI Processing Pipeline
+
+1. Document ingestion.
+2. Text extraction.
+3. Document normalization.
+4. Content segmentation.
+5. Material analysis.
+6. Structured knowledge storage.
+7. Content generation.
+8. Validation.
+9. Teacher review.
+10. Publishing.
+
+### 5.2. Source Grounding
+
+AI harus menjadikan dokumen yang diunggah sebagai sumber utama.
+
+Setiap hasil generasi idealnya memiliki:
+- Referensi sumber.
+- Referensi halaman atau bagian.
+- Indikator informasi yang tidak ditemukan.
+- Tingkat keyakinan atau status validasi jika tersedia.
+
+AI tidak boleh mengarang informasi dan mengklaim bahwa informasi tersebut berasal dari dokumen.
+
+### 5.3. Structured Output
+
+Setiap generator harus menghasilkan data terstruktur menggunakan schema JSON yang tervalidasi.
+
+Contoh quiz:
+
+{
+  "title": "Evaluasi Sistem Pencernaan",
+  "questions": [
+    {
+      "question": "Apa fungsi utama lambung?",
+      "type": "multiple_choice",
+      "options": [
+        "Menyerap oksigen",
+        "Mencerna makanan",
+        "Menghasilkan insulin",
+        "Memompa darah"
+      ],
+      "correct_answer": "Mencerna makanan",
+      "explanation": "Lambung berfungsi dalam proses pencernaan makanan.",
+      "difficulty": "easy",
+      "source_reference": {
+        "page": 12
+      }
+    }
+  ]
+}
+
+Schema aktual harus menggunakan validasi backend dan tidak mempercayai output mentah dari LLM.
+
+---
+
+## 6. Non-Functional Requirements
+
+### Performance
+- Navigasi antarlayar harus responsif.
+- Pemrosesan AI berjalan secara asynchronous.
+- Pengguna dapat melihat progress pemrosesan.
+- File berukuran besar tidak diproses secara sinkron melalui satu request HTTP.
+- Hasil generasi dapat diakses kembali tanpa melakukan generate ulang.
+
+### Security
+- Password di-hash.
+- JWT dan refresh token dikelola secara aman.
+- API key AI hanya disimpan di backend.
+- Validasi file dilakukan di server.
+- Pengguna tidak dapat mengakses dokumen milik pengguna lain tanpa izin.
+- Data siswa dilindungi dengan authorization yang ketat.
+
+### Reliability
+- Mendukung retry untuk job yang gagal.
+- Mencatat status pemrosesan.
+- Menyimpan riwayat generasi.
+- Menghindari duplikasi job.
+- Menyediakan error handling yang jelas.
+
+### Usability
+- Interface mudah digunakan oleh pengajar dan siswa.
+- Navigasi sesuai role.
+- Mendukung berbagai ukuran layar Android.
+- Memiliki loading, empty, error, dan success state.
+- Mendukung penggunaan jaringan yang tidak selalu stabil.
+
+---
+
+## 7. MVP Scope
+
+MVP harus membuktikan bahwa satu dokumen dapat diubah menjadi konten pembelajaran yang berguna dan digunakan siswa.
+
+### Included
+
+- Authentication.
+- Role teacher dan student.
+- Upload PDF.
+- Document analysis.
+- Summary generator.
+- Quiz generator.
+- Content editor sederhana.
+- Classroom management.
+- Student learning dashboard.
+- Quiz submission.
+- Basic scoring.
+
+### Excluded from MVP
+
+- PPTX generator.
+- Advanced game generator.
+- Adaptive learning.
+- Live multiplayer.
+- Video generation.
+- Advanced analytics.
+- Payment gateway.
+- Multi-tenant institutional management.
+
+Fitur di luar MVP bukan berarti tidak penting, melainkan ditunda sampai fondasi produk terbukti bekerja.
+
+---
+
+## 8. Success Metrics
+
+Target awal yang perlu diuji melalui pilot:
+
+- Dokumen berhasil diproses minimal 95% pada format yang didukung dan dalam batas ukuran yang ditetapkan.
+- Minimal 90% output JSON lolos validasi schema setelah mekanisme retry.
+- Pengajar dapat membuat rangkuman dan kuis tanpa bantuan teknis.
+- Siswa dapat menyelesaikan kuis dan memperoleh hasil.
+- Konten yang dipublikasikan telah ditinjau pengajar.
+- Waktu pembuatan materi lebih singkat dibandingkan proses manual.
+
+Angka tersebut merupakan target pengembangan, bukan klaim performa yang sudah terbukti.
+
+---
+
+## 9. Product Roadmap
+
+### Phase 1 — Foundation
+Authentication, user roles, document upload, document management.
+
+### Phase 2 — AI Core
+Document analyzer, summary generator, quiz generator, source grounding.
+
+### Phase 3 — Learning Ecosystem
+Classroom, content publishing, student workspace, quiz submission.
+
+### Phase 4 — Content Expansion
+PPTX, flashcards, mind maps, worksheets.
+
+### Phase 5 — Gamification
+Educational game generator, leaderboard, achievements.
+
+### Phase 6 — Adaptive Learning
+Learning analytics, knowledge gap detection, personalized learning recommendations.
+
+---
+
+## 10. Product Principles
+
+1. AI is an assistant, not an unquestionable authority.
+2. Source materials are the primary knowledge reference.
+3. Teacher approval is required before publication.
+4. Student experience must be simple and engaging.
+5. Every generated content type should be reusable.
+6. Architecture must support future expansion.
+7. Product development prioritizes working features over feature quantity.
+
+**End of PRD.**

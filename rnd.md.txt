@@ -1,0 +1,664 @@
+# RESEARCH AND DEVELOPMENT (R&D)
+
+## AI-POWERED EDUCATIONAL LEARNING ECOSYSTEM
+
+**Versi:** 1.0  
+**Dokumen:** Technical Research & Development  
+**Platform:** Android / Flutter
+
+---
+
+## 1. R&D Overview
+
+### 1.1. Research Objectives
+
+Riset ini bertujuan menentukan pendekatan teknologi yang tepat untuk membangun platform pendidikan berbasis AI.
+
+Fokus riset:
+
+1. Pemrosesan dokumen pembelajaran.
+2. Analisis dan pemahaman konten menggunakan LLM.
+3. Generasi konten edukatif.
+4. Validasi hasil generasi AI.
+5. Implementasi game edukatif dinamis.
+6. Distribusi konten kepada siswa.
+7. Skalabilitas arsitektur aplikasi.
+
+### 1.2. Research Questions
+
+- Bagaimana sistem memahami dokumen PDF, DOCX, dan PPTX?
+- Bagaimana menjaga agar hasil generasi AI sesuai dengan sumber?
+- Bagaimana menghasilkan berbagai format konten dari satu dokumen?
+- Bagaimana mengontrol biaya penggunaan AI?
+- Bagaimana menghasilkan game berdasarkan materi tanpa membuat game baru secara manual?
+- Bagaimana mengukur kualitas hasil generasi?
+- Bagaimana menangani dokumen berukuran besar?
+
+---
+
+## 2. Technology Research
+
+### 2.1. Mobile Development
+
+**Pilihan utama: Flutter + Dart**
+
+Alasan:
+- Satu codebase untuk pengembangan aplikasi mobile.
+- Mendukung Android dan pengembangan iOS di masa depan.
+- Mendukung animasi dan komponen interaktif.
+- Cocok untuk aplikasi pembelajaran dan game sederhana.
+- Memiliki ekosistem package yang luas.
+
+Rekomendasi library:
+
+| Kebutuhan | Teknologi |
+|---|---|
+| State management | Riverpod |
+| Navigation | GoRouter |
+| HTTP client | Dio |
+| Local database | Isar atau SQLite |
+| Secure storage | Flutter Secure Storage |
+| PDF viewing | Syncfusion PDF Viewer atau alternatif berlisensi sesuai kebutuhan |
+| File selection | File Picker |
+| Charts | FL Chart |
+| Audio | Audioplayers |
+| Animations | Flutter Animation API |
+
+Pemilihan package akhir harus mempertimbangkan kompatibilitas versi Flutter, lisensi, pemeliharaan, dan performa.
+
+### 2.2. Backend Development
+
+**Pilihan utama: Node.js + Express + TypeScript**
+
+Tanggung jawab:
+- Authentication.
+- Authorization.
+- User management.
+- Classroom management.
+- Document management.
+- Content management.
+- Assessment management.
+- AI job orchestration.
+- Usage tracking.
+- API communication.
+
+Menggunakan TypeScript pada backend membantu menjaga konsistensi kontrak data antara frontend dan backend.
+
+### 2.3. AI Processing Service
+
+**Pilihan utama: Python + FastAPI**
+
+Alasan:
+- Ekosistem document processing yang kuat.
+- Integrasi dengan berbagai LLM provider.
+- Mendukung pipeline pemrosesan dokumen.
+- Mendukung asynchronous processing.
+- Memudahkan eksperimen AI.
+
+Node.js bertindak sebagai application backend, sedangkan Python menangani proses AI dan dokumen.
+
+### 2.4. Database and Storage
+
+| Komponen | Rekomendasi | Fungsi |
+|---|---|---|
+| Relational DB | PostgreSQL | Data utama aplikasi |
+| Vector search | pgvector | Pencarian semantik |
+| Object storage | S3-compatible storage | File dokumen |
+| Job queue | Redis + BullMQ | Antrian proses |
+| Cache | Redis | Cache dan status sementara |
+
+Untuk MVP, PostgreSQL dan object storage sudah cukup. Redis dapat ditambahkan ketika kebutuhan background processing meningkat.
+
+---
+
+## 3. Document Processing Research
+
+### 3.1. Supported Formats
+
+Tahap pertama:
+- PDF.
+- DOCX.
+- PPTX.
+
+Tahap selanjutnya:
+- TXT.
+- Markdown.
+- OCR untuk PDF hasil scan.
+- Gambar materi pembelajaran.
+
+### 3.2. Document Processing Pipeline
+
+UPLOAD
+↓
+FILE VALIDATION
+↓
+TEXT EXTRACTION
+↓
+DOCUMENT NORMALIZATION
+↓
+CHUNKING
+↓
+METADATA EXTRACTION
+↓
+MATERIAL ANALYSIS
+↓
+KNOWLEDGE STORAGE
+
+### 3.3. Recommended Libraries
+
+| Format | Library |
+|---|---|
+| PDF | PyMuPDF |
+| DOCX | python-docx |
+| PPTX | python-pptx |
+| OCR | PaddleOCR atau Tesseract |
+| Text processing | Python standard libraries |
+| Schema validation | Pydantic |
+
+Catatan:
+OCR hanya digunakan ketika dokumen tidak memiliki text layer yang dapat diekstrak.
+
+### 3.4. Document Chunking
+
+Dokumen panjang tidak sebaiknya dikirim sekaligus kepada LLM.
+
+Pendekatan:
+
+1. Membaca struktur dokumen.
+2. Memisahkan berdasarkan bab dan subbab.
+3. Mempertahankan nomor halaman.
+4. Membagi teks menjadi chunk.
+5. Mempertahankan konteks antarbagian.
+6. Menyimpan metadata sumber.
+
+Chunking harus mempertahankan struktur semantik, bukan sekadar memotong teks berdasarkan jumlah karakter.
+
+### 3.5. Document Knowledge Representation
+
+Setiap dokumen dianalisis menjadi struktur pengetahuan.
+
+Contoh:
+
+{
+  "document_id": "doc_001",
+  "title": "Sistem Pencernaan Manusia",
+  "subject": "Biologi",
+  "chapters": [
+    {
+      "title": "Organ Pencernaan",
+      "topics": [
+        {
+          "title": "Lambung",
+          "concepts": [
+            {
+              "name": "Fungsi Lambung",
+              "description": "Proses pencernaan makanan di lambung",
+              "source_pages": [12, 13]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Struktur ini menjadi sumber bagi seluruh generator.
+
+---
+
+## 4. AI Architecture Research
+
+### 4.1. LLM Provider Strategy
+
+Sistem sebaiknya tidak bergantung pada satu penyedia AI.
+
+Gunakan provider abstraction agar model dapat diganti tanpa mengubah keseluruhan aplikasi.
+
+Kategori model:
+
+- Model cepat untuk klasifikasi dan ekstraksi sederhana.
+- Model berkualitas tinggi untuk analisis dan pembuatan konten.
+- Model embedding untuk semantic search.
+- Model multimodal untuk pemrosesan dokumen visual jika diperlukan.
+
+Kandidat untuk dievaluasi:
+- Google Gemini API.
+- OpenAI API.
+- Model open-weight yang dapat di-host sendiri.
+
+Pemilihan final berdasarkan:
+- Kualitas bahasa Indonesia.
+- Akurasi terhadap sumber.
+- Kemampuan structured output.
+- Context window.
+- Latency.
+- Harga token.
+- Kebijakan privasi dan retensi data.
+- Kemudahan integrasi.
+
+### 4.2. Provider Abstraction
+
+Buat interface internal:
+
+AIProvider
+- generateText()
+- generateStructured()
+- generateEmbedding()
+- analyzeDocument()
+
+Setiap provider mengimplementasikan interface yang sama.
+
+Dengan demikian, pergantian model tidak memerlukan perubahan pada business logic aplikasi.
+
+### 4.3. AI Pipeline
+
+Tahap A — Material Understanding
+
+Input:
+- Document ID.
+- Extracted text.
+- Document metadata.
+
+Output:
+- Subject.
+- Topic.
+- Subtopic.
+- Key concepts.
+- Learning objectives.
+- Source references.
+
+Tahap B — Content Generation
+
+Input:
+- Material knowledge.
+- Content type.
+- Difficulty.
+- Content configuration.
+
+Output:
+- Structured educational content.
+
+Tahap C — Validation
+
+Pemeriksaan:
+- JSON schema.
+- Kelengkapan konten.
+- Konsistensi jawaban.
+- Kesesuaian sumber.
+- Duplikasi pertanyaan.
+- Kelayakan tingkat kesulitan.
+
+Tahap D — Teacher Review
+
+Pengajar melakukan:
+- Preview.
+- Edit.
+- Approve.
+- Regenerate.
+- Publish.
+
+---
+
+## 5. R&D: Content Generation
+
+### 5.1. Summary Generator
+
+Eksperimen:
+- Menghasilkan ringkasan berdasarkan satu bab.
+- Menghasilkan ringkasan berdasarkan keseluruhan dokumen.
+- Membandingkan ringkasan pendek dan mendalam.
+
+Kriteria evaluasi:
+- Kelengkapan konsep penting.
+- Akurasi informasi.
+- Keterbacaan.
+- Konsistensi dengan sumber.
+
+### 5.2. Quiz Generator
+
+Eksperimen:
+- Generate pilihan ganda.
+- Generate benar/salah.
+- Generate esai.
+- Generate berdasarkan tingkat kesulitan.
+- Generate berdasarkan topik tertentu.
+
+Kriteria evaluasi:
+- Jawaban benar.
+- Distraktor masuk akal.
+- Tidak ambigu.
+- Tidak mengulang soal.
+- Sesuai materi sumber.
+
+Khusus soal pilihan ganda, sistem harus memastikan hanya terdapat satu jawaban benar jika jenis soal memang dirancang demikian.
+
+### 5.3. Presentation Generator
+
+Pendekatan:
+
+LLM menghasilkan struktur slide, bukan file PPTX secara langsung.
+
+Contoh struktur:
+
+{
+  "title": "Sistem Pencernaan",
+  "slides": [
+    {
+      "title": "Pengenalan",
+      "layout": "title_content",
+      "content": [
+        "Pengertian sistem pencernaan",
+        "Fungsi sistem pencernaan"
+      ],
+      "speaker_notes": "Penjelasan tambahan...",
+      "visual_suggestions": [
+        "Ilustrasi organ pencernaan"
+      ]
+    }
+  ]
+}
+
+Backend kemudian mengubah struktur tersebut menjadi PPTX menggunakan python-pptx.
+
+### 5.4. Flashcard Generator
+
+Format:
+- Front: pertanyaan atau istilah.
+- Back: jawaban atau definisi.
+- Topic.
+- Difficulty.
+- Source reference.
+
+### 5.5. Mind Map Generator
+
+LLM menghasilkan hierarki konsep.
+
+Flutter merender hasil dalam bentuk node dan koneksi.
+
+### 5.6. Educational Game Generator
+
+Prinsip utama:
+
+AI tidak membuat source code game.
+
+AI menghasilkan konfigurasi permainan yang mengikuti schema yang sudah ditentukan.
+
+Contoh:
+
+{
+  "game_type": "word_matching",
+  "title": "Kenali Organ Pencernaan",
+  "instructions": "Cocokkan organ dengan fungsinya.",
+  "items": [
+    {
+      "left": "Lambung",
+      "right": "Mencerna makanan"
+    },
+    {
+      "left": "Usus halus",
+      "right": "Menyerap nutrisi"
+    }
+  ],
+  "settings": {
+    "time_limit": 60,
+    "shuffle": true
+  }
+}
+
+Flutter memiliki beberapa game renderer:
+
+- QuizRenderer.
+- MatchingRenderer.
+- TrueFalseRenderer.
+- MemoryCardRenderer.
+- CrosswordRenderer.
+- WordPuzzleRenderer.
+
+Setiap renderer menggunakan schema yang telah tervalidasi.
+
+---
+
+## 6. R&D: Retrieval-Augmented Generation
+
+RAG digunakan untuk membantu AI mengambil informasi relevan dari dokumen sumber.
+
+### Pipeline
+
+USER REQUEST
+↓
+QUERY EMBEDDING
+↓
+VECTOR SEARCH
+↓
+RELEVANT CHUNK RETRIEVAL
+↓
+CONTEXT CONSTRUCTION
+↓
+LLM GENERATION
+↓
+SOURCE VALIDATION
+↓
+OUTPUT
+
+### Research Objectives
+
+- Mengurangi halusinasi.
+- Meningkatkan kesesuaian hasil dengan dokumen.
+- Mendukung dokumen berukuran besar.
+- Mendukung pencarian materi berdasarkan pertanyaan.
+
+RAG tidak menjamin jawaban selalu benar. Karena itu, hasil tetap membutuhkan validasi dan review.
+
+---
+
+## 7. Database Research
+
+Entitas utama:
+
+### User Domain
+- users
+- user_profiles
+- refresh_tokens
+
+### Document Domain
+- documents
+- document_pages
+- document_chunks
+- document_analyses
+
+### AI Domain
+- generation_jobs
+- generated_contents
+- generation_versions
+- ai_usage_logs
+
+### Classroom Domain
+- classrooms
+- classroom_members
+- classroom_materials
+
+### Assessment Domain
+- assessments
+- assessment_questions
+- assessment_attempts
+- assessment_answers
+
+### Learning Domain
+- student_progress
+- learning_activities
+- learning_analytics
+
+Relasi dan normalisasi database harus ditentukan melalui ERD sebelum implementasi.
+
+---
+
+## 8. Security Research
+
+Hal-hal yang harus diuji:
+
+1. Unauthorized document access.
+2. Insecure direct object references.
+3. Broken role-based access control.
+4. File upload abuse.
+5. Malicious file upload.
+6. Token expiration.
+7. API rate limiting.
+8. Prompt injection melalui dokumen.
+9. Data leakage antar pengguna.
+10. Kebocoran API key.
+
+Dokumen yang diunggah diperlakukan sebagai data tidak tepercaya, bukan instruksi sistem AI.
+
+---
+
+## 9. Testing and Evaluation
+
+### 9.1. Functional Testing
+
+Memastikan seluruh fitur berjalan sesuai requirement.
+
+### 9.2. AI Quality Testing
+
+Siapkan dataset pengujian yang berisi dokumen dengan:
+- Struktur sederhana.
+- Struktur kompleks.
+- Banyak tabel.
+- Banyak gambar.
+- Dokumen panjang.
+- Dokumen hasil scan.
+- Materi berbahasa Indonesia.
+
+Evaluasi hasil menggunakan penilaian manusia dan metrik otomatis.
+
+### 9.3. AI Evaluation Metrics
+
+| Parameter | Tujuan |
+|---|---|
+| Faithfulness | Kesesuaian dengan sumber |
+| Relevance | Relevansi hasil |
+| Completeness | Kelengkapan konsep |
+| Correctness | Kebenaran informasi |
+| Readability | Keterbacaan |
+| Schema validity | Validitas struktur data |
+
+### 9.4. Performance Testing
+
+Uji:
+- Waktu ekstraksi dokumen.
+- Waktu generasi.
+- Penggunaan memori.
+- Concurrent generation jobs.
+- API response time.
+- Penggunaan jaringan mobile.
+
+### 9.5. User Acceptance Testing
+
+Libatkan pengajar dan siswa untuk mengevaluasi:
+- Kemudahan penggunaan.
+- Kualitas konten.
+- Kesesuaian materi.
+- Pengalaman pembelajaran.
+- Kecepatan aplikasi.
+
+---
+
+## 10. Risk Analysis
+
+| Risiko | Mitigasi |
+|---|---|
+| AI hallucination | RAG, source grounding, teacher review |
+| Biaya API tinggi | Quota, caching, model routing |
+| Dokumen gagal diproses | Retry, error tracking, format validation |
+| Output tidak konsisten | Structured output, Pydantic validation |
+| Game terlalu kompleks | Template-based renderer |
+| Kebocoran dokumen | Access control, private storage |
+| Koneksi tidak stabil | Retry, local caching |
+| Ketergantungan provider | Provider abstraction |
+
+---
+
+## 11. Development Roadmap
+
+### Stage 1 — Technical Foundation
+
+- Flutter project setup.
+- Backend project setup.
+- PostgreSQL setup.
+- Authentication.
+- API contract.
+- Basic application navigation.
+
+### Stage 2 — Document Intelligence
+
+- File upload.
+- Document extraction.
+- Text normalization.
+- Chunking.
+- Document analysis.
+- Knowledge representation.
+
+### Stage 3 — AI Content Engine
+
+- AI provider integration.
+- Summary generation.
+- Quiz generation.
+- Structured output validation.
+- Generation history.
+
+### Stage 4 — Learning Ecosystem
+
+- Classroom.
+- Content publishing.
+- Student dashboard.
+- Assessment.
+- Score management.
+
+### Stage 5 — Advanced Generation
+
+- PPTX.
+- Flashcards.
+- Mind maps.
+- Worksheets.
+- Educational games.
+
+### Stage 6 — Intelligence Expansion
+
+- Learning analytics.
+- Knowledge gap analysis.
+- Personalized recommendations.
+- Adaptive learning.
+
+---
+
+## 12. Research Deliverables
+
+Setiap tahap R&D wajib menghasilkan:
+
+1. Technical decision records.
+2. Architecture diagrams.
+3. API specifications.
+4. Database schema.
+5. AI prompt templates.
+6. Structured output schemas.
+7. Evaluation dataset.
+8. Test reports.
+9. Performance reports.
+10. Updated technical documentation.
+
+---
+
+## 13. Final Technical Recommendation
+
+Gunakan arsitektur modular dengan pemisahan tanggung jawab:
+
+- Flutter: presentation dan user interaction.
+- Node.js: application backend.
+- Python: AI dan document processing.
+- PostgreSQL: relational data.
+- Object storage: document files.
+- Redis: asynchronous job processing jika dibutuhkan.
+- LLM provider: AI intelligence.
+
+Prioritas R&D pertama adalah membuktikan bahwa satu dokumen dapat diproses secara konsisten dan menghasilkan rangkuman serta soal yang akurat sebelum memperluas jenis konten lainnya.
+
+**End of R&D.**
