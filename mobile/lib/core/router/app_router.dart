@@ -41,12 +41,22 @@ const _studentDestinations = [
   NavDestinationItem(label: 'Profil', icon: LucideIcons.user, route: '/student/profile'),
 ];
 
+class _RouterRefreshNotifier extends ChangeNotifier {
+  void trigger() => notifyListeners();
+}
+
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authControllerProvider);
+  final refreshNotifier = _RouterRefreshNotifier();
+  ref.listen<AuthState>(authControllerProvider, (_, __) {
+    refreshNotifier.trigger();
+  });
+  ref.onDispose(refreshNotifier.dispose);
 
   return GoRouter(
     initialLocation: '/onboarding',
+    refreshListenable: refreshNotifier,
     redirect: (context, state) {
+      final authState = ref.read(authControllerProvider);
       final path = state.uri.path;
       final isPublic = path == '/onboarding' || path == '/login' || path == '/register';
 

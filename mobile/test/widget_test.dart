@@ -214,6 +214,44 @@ void main() {
       expect(find.text('Progres'), findsOneWidget);
       expect(find.text('88.5%'), findsOneWidget);
     });
+
+    testWidgets('unauthenticated user stays on /login when auth state transitions to loading',
+        (tester) async {
+      final container = ProviderContainer(
+        overrides: [
+          tokenStorageProvider.overrideWithValue(InMemoryTokenStorage()),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: Consumer(
+            builder: (context, ref, _) {
+              final router = ref.watch(appRouterProvider);
+              return MaterialApp.router(
+                theme: AppTheme.light(),
+                routerConfig: router,
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Navigate from onboarding to login
+      container.read(appRouterProvider).go('/login');
+      await tester.pumpAndSettle();
+      expect(find.text('Masuk ke EduForge AI'), findsOneWidget);
+
+      // Simulate AuthStatus change (e.g., login loading -> unauthenticated)
+      container.read(authControllerProvider.notifier).forceSignOut();
+      await tester.pumpAndSettle();
+
+      // Must remain on /login and NEVER bounce back to /onboarding
+      expect(find.text('Masuk ke EduForge AI'), findsOneWidget);
+    });
   });
 
   group('Educational Game Engine — Native Renderers', () {

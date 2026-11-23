@@ -1,11 +1,22 @@
+import re
 from typing import Any, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class SourceReference(BaseModel):
     page: int = Field(ge=1)
     chunk_index: int | None = Field(default=None, ge=0)
     excerpt: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def coerce_source_reference(cls, value: Any) -> Any:
+        if isinstance(value, int) and value >= 1:
+            return {"page": value}
+        if isinstance(value, str):
+            m = re.search(r"(\d+)", value)
+            return {"page": int(m.group(1)) if m and int(m.group(1)) >= 1 else 1}
+        return value
 
 
 class UsageMetrics(BaseModel):
@@ -180,7 +191,7 @@ class QuizQuestion(BaseModel):
     correct_answer: str
     explanation: str
     difficulty: Literal["easy", "medium", "hard"] = "medium"
-    points: int = Field(default=10, gt=0)
+    points: int = Field(default=10, ge=1)
     source_reference: SourceReference
 
 
@@ -246,7 +257,7 @@ class WorksheetActivity(BaseModel):
     answer_space_lines: int = Field(default=4, ge=1, le=20)
     sample_answer: str
     grading_criteria: list[str] = Field(min_length=1)
-    max_points: int = Field(default=20, gt=0)
+    max_points: int = Field(default=20, ge=1)
     source_reference: SourceReference
 
 
@@ -278,7 +289,7 @@ class GamePayload(BaseModel):
     title: str
     instructions: str
     settings: GameSettings = Field(default_factory=GameSettings)
-    max_possible_score: int = Field(gt=0)
+    max_possible_score: int = Field(ge=1)
     items: list[dict[str, Any]] = Field(default_factory=list)
     grid_size: dict[str, int] | None = None
     entries: list[dict[str, Any]] | None = None

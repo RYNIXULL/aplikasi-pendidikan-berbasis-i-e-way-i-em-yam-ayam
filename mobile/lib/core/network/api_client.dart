@@ -8,13 +8,14 @@ class ApiClient {
   ApiClient({
     required TokenStorage tokenStorage,
     required void Function() onSessionExpired,
+    String? baseUrl,
     Dio? dio,
   })  : _tokenStorage = tokenStorage,
         _onSessionExpired = onSessionExpired,
         dio = dio ??
             Dio(
               BaseOptions(
-                baseUrl: AppConfig.apiBaseUrl,
+                baseUrl: baseUrl ?? AppConfig.apiBaseUrl,
                 connectTimeout: AppConfig.connectTimeout,
                 receiveTimeout: AppConfig.receiveTimeout,
                 headers: const {'Content-Type': 'application/json'},

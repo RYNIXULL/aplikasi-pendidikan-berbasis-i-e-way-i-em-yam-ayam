@@ -14,6 +14,7 @@ T = TypeVar("T", bound=BaseModel)
 MODEL_PRICING_PER_1M: dict[str, tuple[float, float]] = {
     "gemini-2.5-flash": (0.15, 0.60),
     "gemini-2.5-pro": (1.25, 5.00),
+    "gemini-embedding-001": (0.02, 0.0),
     "text-embedding-004": (0.02, 0.0),
 }
 
@@ -30,7 +31,10 @@ class GeminiProvider(AIProvider):
             raise RuntimeError(
                 "GEMINI_API_KEY is not configured. Set it in ai-service/.env before running Gemini calls."
             )
-        self._client = genai.Client(api_key=settings.gemini_api_key)
+        self._client = genai.Client(
+            api_key=settings.gemini_api_key,
+            http_options=types.HttpOptions(api_version="v1beta"),
+        )
         self._model_fast = settings.gemini_model_fast
         self._model_quality = settings.gemini_model_quality
         self._embedding_model = settings.gemini_embedding_model
@@ -80,19 +84,44 @@ class GeminiProvider(AIProvider):
         context_hint: dict[str, Any] | None = None,
     ) -> tuple[T, UsageMetrics]:
         model = self._select_model(tier)
+        schema_json = json.dumps(response_schema.model_json_schema(), ensure_ascii=False)
         t0 = time.perf_counter()
-        response = self._client.models.generate_content(
-            model=model,
-            contents=user_prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                response_schema=response_schema,
-                temperature=0.2,
-            ),
-        )
+
+        # Use native response_schema when supported by Gemini's OpenAPI subset;
+        # fall back cleanly to JSON mode + explicit JSON Schema guidance for recursive/dict schemas (MindMap, Game).
+        try:
+            response = self._client.models.generate_content(
+                model=model,
+                contents=user_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    response_mime_type="application/json",
+                    response_schema=response_schema,
+                    temperature=0.2,
+                ),
+            )
+        except Exception:
+            enriched_prompt = (
+                f"{user_prompt}\n\n"
+                f"OUTPUT FORMAT REQUIREMENT: Return ONLY a valid JSON object matching this exact JSON Schema:\n"
+                f"{schema_json}"
+            )
+            response = self._client.models.generate_content(
+                model=model,
+                contents=enriched_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    response_mime_type="application/json",
+                    temperature=0.2,
+                ),
+            )
+
         latency_ms = int((time.perf_counter() - t0) * 1000)
         raw_text = (response.text or "{}").strip()
+        if raw_text.startswith("```"):
+            raw_text = raw_text.strip("`")
+            if raw_text.lower().startswith("json"):
+                raw_text = raw_text[4:].strip()
         parsed_dict = json.loads(raw_text)
         validated = response_schema.model_validate(parsed_dict)
 

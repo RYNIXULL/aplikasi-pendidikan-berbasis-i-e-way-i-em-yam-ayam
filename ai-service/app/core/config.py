@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     ai_provider: str = "gemini"
     gemini_api_key: str = ""
     gemini_model_fast: str = "gemini-2.5-flash"
-    gemini_model_quality: str = "gemini-2.5-pro"
-    gemini_embedding_model: str = "text-embedding-004"
+    gemini_model_quality: str = "gemini-2.5-flash"
+    gemini_embedding_model: str = "gemini-embedding-001"
 
     ocr_enabled: bool = False
     max_pages_per_document: int = 150

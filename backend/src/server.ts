@@ -7,8 +7,8 @@ import { closeQueues } from './modules/ai-orchestration/queues';
 
 const app = createApp();
 
-const server = app.listen(env.PORT, () => {
-  logger.info({ port: env.PORT, env: env.NODE_ENV }, 'EduAI Node.js backend listening');
+const server = app.listen(env.PORT, '0.0.0.0', () => {
+  logger.info({ port: env.PORT, host: '0.0.0.0', env: env.NODE_ENV }, 'EduAI Node.js backend listening');
 });
 
 async function shutdown(signal: string) {

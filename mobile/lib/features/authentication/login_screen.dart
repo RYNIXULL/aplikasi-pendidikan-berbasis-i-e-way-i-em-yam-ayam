@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -48,6 +49,99 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  Future<void> _showServerConfigSheet() async {
+    final currentUrl = ref.read(apiBaseUrlProvider);
+    final urlCtrl = TextEditingController(text: currentUrl);
+
+    final saved = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(ctx).viewInsets.bottom + 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Konfigurasi Server API', style: Theme.of(ctx).textTheme.titleLarge),
+            const SizedBox(height: 8),
+            Text(
+              'Ubah alamat server jika IP Wi-Fi laptop berubah atau memakai server hosting.',
+              style: Theme.of(ctx).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 14),
+            InputField(
+              controller: urlCtrl,
+              label: 'Base URL API',
+              hint: 'http://192.168.1.10:3000/api/v1',
+              prefixIcon: LucideIcons.server,
+              keyboardType: TextInputType.url,
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: SecondaryButton(
+                    label: 'Tes Koneksi',
+                    icon: LucideIcons.wifi,
+                    onPressed: () async {
+                      final testBase = urlCtrl.text.trim().replaceAll(RegExp(r'/+$'), '');
+                      try {
+                        final dio = Dio(
+                          BaseOptions(
+                            connectTimeout: const Duration(seconds: 5),
+                            receiveTimeout: const Duration(seconds: 5),
+                          ),
+                        );
+                        await dio.get<Map<String, dynamic>>('$testBase/health');
+                        if (ctx.mounted) {
+                          AppToast.show(
+                            ctx,
+                            message: 'Koneksi ke server berhasil.',
+                            variant: ToastVariant.success,
+                          );
+                        }
+                      } catch (_) {
+                        if (ctx.mounted) {
+                          AppToast.show(
+                            ctx,
+                            message: 'Server tidak terjangkau di $testBase',
+                            variant: ToastVariant.error,
+                          );
+                        }
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: PrimaryButton(
+                    label: 'Simpan',
+                    icon: LucideIcons.check,
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (saved == true && mounted) {
+      final cleaned = urlCtrl.text.trim().replaceAll(RegExp(r'/+$'), '');
+      if (cleaned.startsWith('http://') || cleaned.startsWith('https://')) {
+        ref.read(apiBaseUrlProvider.notifier).state = cleaned;
+        AppToast.show(context, message: 'Server API diatur ke $cleaned', variant: ToastVariant.success);
+      } else {
+        AppToast.show(
+          context,
+          message: 'URL harus diawali http:// atau https://',
+          variant: ToastVariant.error,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -60,7 +154,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 24),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    onPressed: _showServerConfigSheet,
+                    icon: const Icon(LucideIcons.server, size: 20),
+                    tooltip: 'Pengaturan Server API',
+                  ),
+                ),
+                const SizedBox(height: 4),
                 Container(
                   width: 56,
                   height: 56,
@@ -126,6 +228,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: const Text('Daftar Sekarang'),
                     ),
                   ],
+                ),
+                const SizedBox(height: 12),
+                Center(
+                  child: TextButton.icon(
+                    onPressed: _showServerConfigSheet,
+                    icon: const Icon(LucideIcons.server, size: 14),
+                    label: Text(
+                      'Server: ${ref.watch(apiBaseUrlProvider)}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12),
+                    ),
+                  ),
                 ),
               ],
             ),

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/config/app_config.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/errors/app_failure.dart';
 import '../../core/network/api_client.dart';
@@ -38,13 +39,16 @@ class AuthState {
 }
 
 final themeModeProvider = StateProvider<ThemeMode>((ref) => ThemeMode.system);
+final apiBaseUrlProvider = StateProvider<String>((ref) => AppConfig.apiBaseUrl);
 final tokenStorageProvider = Provider<TokenStorage>((ref) => SecureTokenStorage());
 final offlineCacheProvider = Provider<OfflineCacheDatabase>((ref) => OfflineCacheDatabase());
 
 final apiClientProvider = Provider<ApiClient>((ref) {
   final storage = ref.watch(tokenStorageProvider);
+  final baseUrl = ref.watch(apiBaseUrlProvider);
   return ApiClient(
     tokenStorage: storage,
+    baseUrl: baseUrl,
     onSessionExpired: () {
       ref.read(authControllerProvider.notifier).forceSignOut();
     },
